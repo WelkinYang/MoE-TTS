@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoE-TTS: Enhancing Out-of-Domain Text Understanding for Description-based TTS via Mixture-of-Experts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .authors {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .authors h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .abstract {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .framework-section {
+            text-align: center;
+        }
+
+        .framework-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+
+        .case-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .case-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .case-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border: 1px solid #e9ecef;
+        }
+
+        .description-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .audio-section {
+            margin: 20px 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .audio-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .audio-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .comments {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .description-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .audio-section {
+                flex-direction: column;
+            }
+            
+            .audio-item {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MoE-TTS</h1>
+            <p>Enhancing Out-of-Domain Text Understanding for Description-based TTS via Mixture-of-Experts</p>
+        </div>
+
+        <div class="card">
+            <h2>Paper Information</h2>
+            <div class="authors">
+                <h3>Authors</h3>
+                <p><strong>Heyang Xue, Xuchen Song</strong>†, Yu Tang, Jianyu Chen, Yanru Chen, Yang Li, Yahui Zhou</p>
+                <p>Kunlun Inc.</p>
+                <p>Email: {heyang.xue, xuchen.song}@kunlun-inc.com</p>
+                <p><small>† Corresponding author</small></p>
+            </div>
+            
+            <div class="abstract">
+                <h3>Abstract</h3>
+                <p>Description-based text-to-speech (TTS) models exhibit strong performance on in-domain text descriptions, i.e., those encountered during training. However, in real-world applications, the diverse range of user-generated descriptions inevitably introduces numerous out-of-domain inputs that challenge the text understanding capabilities of these systems. To address this issue, we propose MoE-TTS, a description-based TTS model designed to enhance the understanding of out-of-domain text descriptions. MoE-TTS employs a modality-based mixture-of-experts (MoE) approach to augment a pre-trained textual large language model (LLM) with a set of specialized weights adapted to the speech modality while maintaining the original LLM forzen during training. This approach allows MoE-TTS to effectively leverage the pre-trained knowledge and text understanding abilities of textual LLMs. Our experimental results indicate that: first, even the most advanced closed-source commercial products can be challenged by carefully designed out-of-domain description test sets; second, MoE-TTS achieves superior performance in generating speech that more accurately reflects the descriptions.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Framework Architecture</h2>
+            <div class="framework-section">
+                <img src="images/moe-tts-framework.svg" alt="MoE-TTS Framework" class="framework-image">
+                <p>Building on the core idea of enhancing description-based TTS through the pre-trained knowledge and text understanding capabilities of large language models, we propose MoE-TTS. Our approach employs a mixture-of-experts framework that utilizes a modality-based routing strategy and modality-aware Transformer components to bridge large language models and TTS models.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Out-of-domain Descriptions Showcases</h2>
+            <p><em>Note: As of early August 2025, the ElevenLabs multilingual_v2 API was used, as the alpha v3 remained inaccessible.</em></p>
+            
+            <div class="case-grid">
+                <div class="case-card">
+                    <h3>Case 1: Middle-aged Puppet Marriage Counselor</h3>
+                    <div class="description-grid">
+                        <div class="description">
+                            <strong>Description:</strong> Middle-aged puppet marriage counselor, unusually calm, with a silky smooth yet hollow <span class="highlight">contralto voice</span>, speaking at a suffocating pace.
+                        </div>
+                        <div class="description">
+                            <strong>Chinese translated description:</strong> 中年傀儡婚姻顾问，异常平静，丝绸般平滑却空洞的<span class="highlight">女低音</span>，语速慢得令人窒息。
+                        </div>
+                        <div class="description">
+                            <strong>Text to be synthesized:</strong> "Relationships erode over centuries like mountains shaping valleys but sometimes you must weather the same storm together to grow stronger."
+                        </div>
+                    </div>
+                    
+                    <div class="audio-section">
+                        <div class="audio-item">
+                            <h4>MoE-TTS</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case1_moetts.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                        <div class="audio-item">
+                            <h4>ElevenLabs</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case1_11labs.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                        <div class="audio-item">
+                            <h4>MiniMax</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case1_minimax.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                    </div>
+                    
+                    <div class="comments">
+                        <strong>Comments:</strong> The contralto voice implies that the gender of the generated result should be female. MoE-TTS understood this implication, but ElevenLabs and MiniMax did not.
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <h3>Case 2: US Actor with New York Accent</h3>
+                    <div class="description-grid">
+                        <div class="description">
+                            <strong>Description:</strong> US actor with a New York accent, versatile, articulate, with a dynamic pace, full of charm and charisma, attracting the attention of the audience.
+                        </div>
+                        <div class="description">
+                            <strong>Chinese translated description:</strong> 美国男演员，带有纽约口音，多才多艺，表达能力强，语速富有活力，充满魅力与感染力，吸引着听众的注意。
+                        </div>
+                        <div class="description">
+                            <strong>Text to be synthesized:</strong> "Ay! Macbeth's soliloquy isn't words, it's blood and thunder in the mouth!"
+                        </div>
+                    </div>
+                    
+                    <div class="audio-section">
+                        <div class="audio-item">
+                            <h4>MoE-TTS</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case2_moetts.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                        <div class="audio-item">
+                            <h4>ElevenLabs</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case2_11labs.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                        <div class="audio-item">
+                            <h4>MiniMax</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case2_minimax.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                    </div>
+                    
+                    <div class="comments">
+                        <strong>Comments:</strong> MoE-TTS shows off its strongest expressiveness and aligns more closely with the descriptions.
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <h3>Case 3: Iron-Willed Strategist</h3>
+                    <div class="description-grid">
+                        <div class="description">
+                            <strong>Description:</strong> Iron-Willed Strategist, Female, mature (35-50), deep and resonant voice, commanding tone with biting wit no-nonsense, formidable, and effortlessly dominant.
+                        </div>
+                        <div class="description">
+                            <strong>Chinese translated description:</strong> 钢铁意志战略家，女性，成熟（35-50岁），声音低沉洪亮，语气强势，略带尖刻的智慧——严肃认真、令人敬畏，且不费吹灰之力便能掌控全局。
+                        </div>
+                        <div class="description">
+                            <strong>Text to be synthesized:</strong> "Victory isn't debated, it's seized. Every second spent doubting is a gift to your enemies. Do I make myself clear?"
+                        </div>
+                    </div>
+                    
+                    <div class="audio-section">
+                        <div class="audio-item">
+                            <h4>MoE-TTS</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case3_moetts.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                        <div class="audio-item">
+                            <h4>ElevenLabs</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case3_11labs.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                        <div class="audio-item">
+                            <h4>MiniMax</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case3_minimax.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                    </div>
+                    
+                    <div class="comments">
+                        <strong>Comments:</strong> MoE-TTS emphasizes key words in sentences (gift!). Overall, it is more in line with a deep, resonant voice, a strong tone, and a serious, awe-inspiring demeanor.
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <h3>Case 4: Talking Taser</h3>
+                    <div class="description-grid">
+                        <div class="description">
+                            <strong>Description:</strong> Talking Taser, Female, 20-35, chipmunk-on-jet-fuel energy. Words fire like a machine gun, punctuated by dolphin-like yips. Occasionally short-circuits into gibberish.
+                        </div>
+                        <div class="description">
+                            <strong>Chinese translated description:</strong> 会说话的泰瑟枪，女，20-35岁，精力充沛得像花栗鼠一样。话语如机关枪般射出，不时夹杂着海豚般的叫声。偶尔会短路，变成胡言乱语。
+                        </div>
+                        <div class="description">
+                            <strong>Text to be synthesized:</strong> "Oh my gosh! That's the biggest cupcake ever wait is it alive? It winked at me! Nuh-uh! Okay maybe just a little bite Ahhhh it bit me back!"
+                        </div>
+                    </div>
+                    
+                    <div class="audio-section">
+                        <div class="audio-item">
+                            <h4>MoE-TTS</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case4_moetts.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                        <div class="audio-item">
+                            <h4>ElevenLabs</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case4_11labs.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                        <div class="audio-item">
+                            <h4>MiniMax</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case4_minimax.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                    </div>
+                    
+                    <div class="comments">
+                        <strong>Comments:</strong> The description uses several metaphors to imply that the generated results should be high-pitched, fast, loud, and sharp. MoE-TTS understood the metaphorical technique and generated the most expressive results.
+                    </div>
+                </div>
+
+                <div class="case-card">
+                    <h3>Case 5: Anime Character Dubbing</h3>
+                    <div class="description-grid">
+                        <div class="description">
+                            <strong>Description:</strong> Anime character dubbing, young male voice, exaggerated emotional expression, fast pace, fully showcasing the character's personality and emotions, increasing the fun of the story.
+                        </div>
+                        <div class="description">
+                            <strong>Chinese translated description:</strong> 动漫人物配音，年轻男声，情感表达夸张，语速快，充分展现角色的个性与情绪，增加故事的趣味性。
+                        </div>
+                        <div class="description">
+                            <strong>Text to be synthesized:</strong> "NANI?! You expect me to believe that was your final form? HAH! I haven't even used 10% of my power yet! BANZAI!"
+                        </div>
+                    </div>
+                    
+                    <div class="audio-section">
+                        <div class="audio-item">
+                            <h4>MoE-TTS</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case5_moetts.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                        <div class="audio-item">
+                            <h4>ElevenLabs</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case5_11labs.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                        <div class="audio-item">
+                            <h4>MiniMax</h4>
+                            <audio controls class="audio-player">
+                                <source src="audios/case5_minimax.mp3" type="audio/mpeg">
+                                您的浏览器不支持音频播放。
+                            </audio>
+                        </div>
+                    </div>
+                    
+                    <div class="comments">
+                        <strong>Comments:</strong> The description "exaggerated" implies that the generated results should be highly expressive. MoE-TTS generated the strongest expressiveness and was more consistent with a younger age.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
